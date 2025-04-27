@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  api:
+    build: .
+    command: python src/api.py
+    ports:
+      - "5000:5000"
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+
+  worker:
+    build: .
+    command: python src/worker.py
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+
+volumes:
+  redis-data:
+
+
