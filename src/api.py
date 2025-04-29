@@ -10,7 +10,7 @@ from launches_reader import read_launches_data
 
 
 app = Flask(__name__)
-r = redis.Redis(host=os.getenv("REDIS_HOST", "redis"), port=6379, db=0, decode_responses=True)
+r = redis.Redis(host=os.getenv("REDIS_HOST", "redis"), port=6379, db=0, decode_responses=False)
 DATA_KEY = "space_launches"
 
 @app.route("/help", methods=["GET"])
