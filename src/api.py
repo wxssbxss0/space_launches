@@ -6,6 +6,8 @@ from flask import Flask, request, jsonify, send_file
 import redis
 import pandas as pd
 from jobs import create_job, get_job, job_result_ready
+from launches_reader import read_launches_data
+
 
 app = Flask(__name__)
 r = redis.Redis(host=os.getenv("REDIS_HOST", "redis"), port=6379, db=0, decode_responses=True)
@@ -25,30 +27,61 @@ def help():
 
 @app.route("/data", methods=["GET", "POST", "DELETE"])
 def data_collection():
+    # ──────── GET ────────
     if request.method == "GET":
-        keys = r.hkeys(DATA_KEY)
-        data = r.hmget(DATA_KEY, keys)
-        return jsonify([json.loads(d) for d in data if d])
+        # 1) grab all values
+        raw = r.hvals(DATA_KEY)
+
+        # 2) if empty, seed from Kaggle CSV
+        if not raw:
+            launches = read_launches_data()  # pulls via Kaggle API
+            for rec in launches:
+                rec_id = str(uuid.uuid4())
+                rec["id"] = rec_id
+                r.hset(DATA_KEY, rec_id, json.dumps(rec))
+            raw = r.hvals(DATA_KEY)
+
+        # 3) return JSON
+        return jsonify([json.loads(d) for d in raw])
+
+    # ──────── POST ────────
     elif request.method == "POST":
-        # Accept CSV upload or JSON
-        if request.content_type.startswith("multipart/form-data"):
-            file = request.files.get("file")
-            if not file or not file.filename.endswith(".csv"):
+        # a) file‐upload?
+        if request.files.get("file"):
+            file = request.files["file"]
+            if not file.filename.lower().endswith(".csv"):
                 return jsonify({"error": "CSV file required"}), 400
-            df = pd.read_csv(file)
-            records = df.to_dict(orient="records")
+            records = read_launches_data(file)
+
         else:
-            records = request.get_json()
-            if not isinstance(records, list):
-                records = [records]
-        for record in records:
-            record_id = str(uuid.uuid4())
-            record["id"] = record_id
-            r.hset(DATA_KEY, record_id, json.dumps(record))
+            # b) JSON payload?
+            payload = request.get_json(force=True, silent=True)
+
+            if isinstance(payload, dict) and "url" in payload:
+                # ignore payload["url"] – read_launches_data() already knows Kaggle
+                records = read_launches_data()
+
+            elif payload:
+                # wrap single obj in list
+                records = payload if isinstance(payload, list) else [payload]
+
+            else:
+                # c) bare POST → seed full dataset
+                records = read_launches_data()
+
+        # stash into Redis
+        for rec in records:
+            rec_id = str(uuid.uuid4())
+            rec["id"] = rec_id
+            r.hset(DATA_KEY, rec_id, json.dumps(rec))
+
         return jsonify({"status": "success", "count": len(records)}), 201
+
+    # ──────── DELETE ────────
     elif request.method == "DELETE":
         r.delete(DATA_KEY)
-        return jsonify({"status": "all records deleted"})
+        return jsonify({"status": "all records deleted"}), 200
+
 
 def submit_analysis_job(job_type):
     job_id = create_job(job_type)
