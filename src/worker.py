@@ -72,6 +72,38 @@ def plot_private_crossover(records):
     plt.close(fig)
     return buf.read()
 
+def plot_top_private(records):
+
+    df = pd.DataFrame(records)
+
+    # 1) Normalize & filter
+    df['Year'] = df['Year'].astype(int)
+    df = df[(df['Year'] >= 1995) & (df['Year'] <= 2020)]
+
+    # 2) Map to Sector & filter Private
+    sector_map = {"P": "Private", "S": "State"}
+    df['Sector'] = df['Private or State Run'].map(sector_map)
+    priv = df[df['Sector'] == 'Private']
+
+    # 3) Count by company
+    counts = priv['Company Name'].value_counts().nlargest(10)
+
+    # 4) Plot top 10 bar chart
+    fig, ax = plt.subplots(figsize=(8,4))
+    counts.plot.bar(ax=ax)
+    ax.set_title("Top 10 Private Launch Providers (1995–2020)")
+    ax.set_ylabel("Number of Launches")
+    ax.set_xlabel("Company")
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+
+    # 5) Serialize to PNG bytes
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
+    buf.seek(0)
+    plt.close(fig)
+    return buf.read()
+
 def plot_sector(df):
     sector_map = {"P": "Private", "S": "State"}
     df['Sector'] = df['Private or State Run'].map(sector_map)
@@ -114,6 +146,8 @@ def process_job(job_id, job_type):
         img_bytes = plot_sector(df)
     elif job_type == "geography":
         img_bytes = plot_geography(df)
+    elif job_type == "top_private":
+        img_bytes = plot_top_private(df)
     else:
         set_job_status(job_id, "failed")
         return

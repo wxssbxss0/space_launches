@@ -91,6 +91,10 @@ def submit_analysis_job(job_type):
 def analyze_timeline():
     return submit_analysis_job("timeline")
 
+@app.route("/analyze/top-private", methods=["POST"])
+def analyze_top_private():
+    return submit_analysis_job("top_private")
+
 @app.route("/analyze/sector", methods=["POST"])
 def analyze_sector():
     return submit_analysis_job("sector")
