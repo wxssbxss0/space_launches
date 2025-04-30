@@ -14,40 +14,63 @@ r = redis.Redis(host=os.getenv("REDIS_HOST", "redis"), port=6379, db=0, decode_r
 DATA_KEY = "space_launches"
 
 def plot_private_crossover(records):
+    import io
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
     df = pd.DataFrame(records)
+
+    # 0) Map the raw sector field into a clean 'Sector' column
+    sector_map = {"P": "Private", "S": "State"}
+    if "Private or State Run" not in df.columns:
+        raise KeyError("Expected 'Private or State Run' in data")
+    df['Sector'] = df['Private or State Run'].map(sector_map).fillna("Other")
+
+    # 1) Ensure Year is integer
     df['Year'] = df['Year'].astype(int)
 
-    # Count by year & sector
-    pivot = df.pivot_table(index='Year',
-                           columns='Sector',   # assuming you normalized "Private"/"State"
-                           values='id',
-                           aggfunc='count',
-                           fill_value=0)
+    # 2) Pivot counts by Year × Sector
+    pivot = df.pivot_table(
+        index='Year',
+        columns='Sector',
+        values='id',
+        aggfunc='count',
+        fill_value=0
+    )
 
-    # Compute the crossover year
-    crossover = (pivot['Private'] > pivot['State'])
-    first_cross = crossover.idxmax() if crossover.any() else None
+    # 3) Find the first Year where Private > State
+    if 'Private' not in pivot.columns or 'State' not in pivot.columns:
+        raise KeyError(f"Pivot missing expected columns, got {list(pivot.columns)}")
+    crossover_mask = pivot['Private'] > pivot['State']
+    first_cross = crossover_mask.idxmax() if crossover_mask.any() else None
 
-    # Plot both lines
-    fig, ax = plt.subplots()
+    # 4) Plot both series
+    fig, ax = plt.subplots(figsize=(8, 4))
     pivot['State'].plot(ax=ax, label='State')
     pivot['Private'].plot(ax=ax, label='Private')
 
-    # Annotate crossover
-    if first_cross:
-        y_cross = pivot.loc[first_cross, 'Private']
+    # 5) Annotate crossover if it exists
+    if first_cross is not None:
+        y = pivot.loc[first_cross, 'Private']
         ax.annotate(
             f'Crossover: {first_cross}',
-            xy=(first_cross, y_cross),
-            xytext=(first_cross, y_cross + 10),
-            arrowprops=dict(arrowstyle='->')
+            xy=(first_cross, y),
+            xytext=(first_cross, y + max(pivot.max())*0.05),
+            arrowprops=dict(arrowstyle='->', lw=1.5)
         )
 
     ax.set_title('State vs Private Launches Over Time')
     ax.set_xlabel('Year')
     ax.set_ylabel('Number of Launches')
     ax.legend()
-    return fig
+    plt.tight_layout()
+
+    # 6) Serialize to PNG bytes
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
+    buf.seek(0)
+    plt.close(fig)
+    return buf.read()
 
 def plot_sector(df):
     sector_map = {"P": "Private", "S": "State"}
