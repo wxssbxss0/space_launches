@@ -14,9 +14,6 @@ r = redis.Redis(host=os.getenv("REDIS_HOST", "redis"), port=6379, db=0, decode_r
 DATA_KEY = "space_launches"
 
 def plot_private_crossover(records):
-    import io
-    import pandas as pd
-    import matplotlib.pyplot as plt
 
     df = pd.DataFrame(records)
 
@@ -75,29 +72,26 @@ def plot_private_crossover(records):
 def plot_top_private(records):
 
     df = pd.DataFrame(records)
-
-    # 1) Normalize & filter
     df['Year'] = df['Year'].astype(int)
     df = df[(df['Year'] >= 1995) & (df['Year'] <= 2020)]
-
-    # 2) Map to Sector & filter Private
     sector_map = {"P": "Private", "S": "State"}
     df['Sector'] = df['Private or State Run'].map(sector_map)
     priv = df[df['Sector'] == 'Private']
 
-    # 3) Count by company
     counts = priv['Company Name'].value_counts().nlargest(10)
 
-    # 4) Plot top 10 bar chart
+    # Use a colormap for distinct colors — e.g. tab10 has 10 unique colors
+    cmap = plt.get_cmap('tab10')
+    colors = [cmap(i) for i in range(len(counts))]
+
     fig, ax = plt.subplots(figsize=(8,4))
-    counts.plot.bar(ax=ax)
+    counts.plot.bar(ax=ax, color=colors)
     ax.set_title("Top 10 Private Launch Providers (1995–2020)")
     ax.set_ylabel("Number of Launches")
     ax.set_xlabel("Company")
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
 
-    # 5) Serialize to PNG bytes
     buf = io.BytesIO()
     fig.savefig(buf, format='png')
     buf.seek(0)
