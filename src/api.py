@@ -18,11 +18,12 @@ def help():
     return jsonify({
         "/help": "GET - List all endpoints and their usage.",
         "/data": "GET - List all records. POST - Upload new records (CSV or JSON). DELETE - Delete all records.",
-        "/analyze/timeline": "POST - Submit a timeline analysis job (returns launches per year plot).",
-        "/analyze/sector": "POST - Submit a sector comparison job (returns bar chart).",
-        "/analyze/geography": "POST - Submit a geographical analysis job (returns heatmap).",
-        "/jobs/<job_id>": "GET - Get job status and result.",
-        "/results/<job_id>": "GET - Download generated plot/image."
+        "/analyze/timeline": "POST - Submit a crossover analysis job (identifies the first year when private launches exceeded state launches).",
+        "/analyze/sector": "POST - Submit a sector comparison job (returns a bar chart of private vs. state launches).",
+        "/analyze/geography": "POST - Submit a geographical analysis job (returns a world‐map view of launch counts by country).",
+        "/analyze/top-private": "POST - Submit a top‐private analysis job (returns a bar chart of the top 10 private launch providers from 1995–2020).",
+        "/jobs/<job_id>": "GET - Get job status and metadata for the given job ID.",
+        "/results/<job_id>": "GET - Download the generated plot/image for a completed job."
     })
 
 @app.route("/data", methods=["GET", "POST", "DELETE"])
