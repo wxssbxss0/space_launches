@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-app-test
+  template:
+    metadata:
+      labels:
+        app: flask-app-test
+    spec:
+      containers:
+      - name: flask-container
+        image: space_launches_api:1.0
+        ports:
+        - containerPort: 5000
+        env:
+        - name: REDIS_HOST
+          value: redis-test
+
