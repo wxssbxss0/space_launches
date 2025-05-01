@@ -1,5 +1,20 @@
 # 🚀 Space Launches API & Kubernetes Pipeline
 
+## Overview
+The **Space Launches Data API** is a containerized microservice suite that:
+
+1. Fetches & normalizes the Kaggle “One Small Step for Data” Global Space Launches CSV, handling header quirks and imputing missing rocket counts.
+
+2. **Caches** every launch record in Redis (db 0) for low-latency access.
+
+3. Exposes a **Flask REST API** to load (/data), query (GET /data), and delete (DELETE /data) launch records.
+
+4. Provides a suite of analysis endpoints—/analyze/timeline, /analyze/sector, /analyze/geography, and /analyze/top-private—which **enqueue jobs** for background processing.
+
+5. Offers a **Jobs API** (/jobs/<job_id>) so clients can poll job status and a **Results API** (/results/<job_id>) to download the generated PNG plots.
+
+6. Runs a **Worker** service that pulls tasks off a Redis list (db 1), updates job metadata (db 2), runs the appropriate plotting routine (timeline crossover, sector bar, geographic heatmap, top-private bar), and stores the raw PNG bytes in Redis (db 3).
+
 ## Project Files  
 *(The following files and folders comprise this repository.  The `data/` and `results/` directories are not checked in—you’ll create or populate them locally.)*
 - `Dockerfile`  
