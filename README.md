@@ -1,9 +1,9 @@
-# 🚀 Space Launches API & Kubernetes Pipeline
+# COE 332 Final Project: Space Launches API 🚀 & Kubernetes Pipeline
 
 ## Overview
 The **Space Launches Data API** is a containerized microservice suite that:
 
-1. Fetches & normalizes the Kaggle “One Small Step for Data” Global Space Launches CSV, handling header quirks and imputing missing rocket counts.
+1. **Fetches & normalizes** the Kaggle “One Small Step for Data” Global Space Launches CSV, handling header quirks and imputing missing rocket counts.
 
 2. **Caches** every launch record in Redis (db 0) for low-latency access.
 
