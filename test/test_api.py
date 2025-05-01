@@ -103,6 +103,11 @@ def test_geography_job(client):
     assert rv.status_code == 202
     assert "job_id" in rv.get_json()
 
+def test_top_private_job(client):
+    rv = client.post("/analyze/top-private")
+    assert rv.status_code == 202
+    assert "job_id" in rv.get_json()
+
 def test_job_status_not_found(client):
     rv = client.get("/jobs/doesnotexist")
     assert rv.status_code == 404
