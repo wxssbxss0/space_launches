@@ -68,3 +68,19 @@ We provide a containerized Flask+Redis API for ingesting, normalizing, and analy
 3. From repo root:  
    ```bash
    docker-compose up --build -d
+
+
+
+| Route                      | Method | Description                                                                              |
+| -------------------------- | :----: | ---------------------------------------------------------------------------------------- |
+| **`/help`**                |   GET  | List all endpoints and usage.                                                            |
+| **`/data`**                |   GET  | Get all records (seeds from Kaggle CSV if empty).                                        |
+|                            |  POST  | Upload CSV (`file`) or JSON array/object to seed/append records.                         |
+|                            | DELETE | Delete all records.                                                                      |
+| **`/analyze/timeline`**    |  POST  | Enqueue crossover analysis: marks the first year private launches exceed state launches. |
+| **`/analyze/sector`**      |  POST  | Enqueue sector comparison: bar chart of private vs. state launches.                      |
+| **`/analyze/geography`**   |  POST  | Enqueue geographic analysis: heatmap of launches by country.                             |
+| **`/analyze/top-private`** |  POST  | Enqueue top-private job: top 10 private launch providers (1995–2020).                    |
+| **`/jobs/<job_id>`**       |   GET  | Query job status & metadata (`queued`/`complete`, type, `result_ready` flag).            |
+| **`/results/<job_id>`**    |   GET  | Download the PNG bytes for a completed job.                                              |
+
