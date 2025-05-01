@@ -22,8 +22,7 @@ The **Space Launches Data API** is a containerized microservice suite that:
 - `diagram.png`  
 - `kubernetes/`  
 - `src/`  
-- `test/`  
-- `.gitignore`  
+- `test/`   
 - `pytest.ini`  
 - `requirements.txt`  
 - `README.md`  
@@ -69,6 +68,31 @@ We provide a containerized Flask+Redis API for ingesting, normalizing, and analy
    ```bash
    docker compose up --build 
 
+## Project Overview
+
+This project performs the following operations:
+
+1. **Space Launch Data Handling:**  
+   - Downloads (via Kaggle API) or reads a local CSV of global space launches.  
+   - Normalizes headers (strips whitespace), imputes missing `# Rocket` values, and resolves “Sea Launch” entries.  
+   - Caches every launch record in Redis (db 0) for fast retrieval.  
+   - Exposes endpoints to load (`POST /data`), list (`GET /data`), and delete (`DELETE /data`) launch records.
+
+2. **Jobs API:**  
+   - Provides analysis endpoints that enqueue background jobs for plotting:  
+     - `/analyze/timeline` (crossover analysis)  
+     - `/analyze/sector` (private vs. state bar chart)  
+     - `/analyze/geography` (country heatmap)  
+     - `/analyze/top-private` (top-10 private providers)  
+   - Each job is assigned a UUID and stored in Redis (db 1 as a list, db 2 for metadata).  
+   - Clients poll `/jobs/<job_id>` to check status and `/results/<job_id>` to download the resulting PNG.
+
+3. **Worker Integration:**  
+   A dedicated worker process continuously:  
+   - BLPOPs a job ID from Redis db 1, marks it “in progress” in db 2.  
+   - Loads the full launch cache from Redis db 0.  
+   - Runs the appropriate plotting function (`plot_private_crossover`, `plot_sector`, `plot_geography`, or `plot_top_private`).  
+   - Stores the raw PNG bytes under `results:<job_id>` in Redis db 3 and marks the job “complete” in db 2.
 
 
 | Route                      | Method | Description                                                                              |
