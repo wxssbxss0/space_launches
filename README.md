@@ -31,7 +31,7 @@ The **Space Launches Data API** is a containerized microservice suite that:
 ---
 
 ## Introduction  
-We provide a containerized Flask+Redis API for ingesting, normalizing, and analyzing a global space-launches dataset.  Users can submit background jobs to generate timeline, sector, geography and “top-private provider” plots—then download the resulting PNGs.
+We provide a containerized Flask+Redis API for ingesting, normalizing, and analyzing a global space-launches dataset.  Users can submit background jobs to generate **timeline**, **sector**, **geography** and **top-private provider** plots— then download the resulting PNGs.
 
 ---
 
@@ -67,7 +67,7 @@ We provide a containerized Flask+Redis API for ingesting, normalizing, and analy
 2. Ensure your Kaggle token is in `~/.kaggle/kaggle.json` with `chmod 600`.  
 3. From repo root:  
    ```bash
-   docker-compose up --build -d
+   docker compose up --build 
 
 
 
