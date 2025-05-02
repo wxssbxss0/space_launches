@@ -44,7 +44,7 @@ We provide a containerized Flask+Redis API for ingesting, normalizing, and analy
 - **Flask** for REST API endpoints  
 - **Redis** (db 0…3) for record storage, job queue, metadata, and result caching  
 - **Pandas & Matplotlib** for data cleaning and static plotting  
-- **(Kubernetes)** manifests (in `kubernetes/`) for future production rollout  
+- **Kubernetes** manifests (in `kubernetes/`) for future production rollout  
 
 ---
 
@@ -141,7 +141,11 @@ This project performs the following operations:
   - `test_worker.py` verifies each plotting function returns valid PNG bytes.
 
 - **kubernetes/**  
-  *(Future work)* Helm charts and Kubernetes manifests for deploying API, worker, and Redis in a cluster.
+  Contains two environment folders `prod/` and `test/` each with 8 Kubernetes manifest files (Deployments, Services, PVCs, and Ingresses) for rolling out the Redis cache, Flask API, and Worker components on a cluster.
+
+- **Makefile**
+  Provides convenient commands to build the Docker images, start and stop the Docker Compose services, view logs, and run the test suite against the live Redis-backed API.
+  - Use command: ```make all``` to run all commands at once.
 
 
 ## Unit Tests
@@ -268,6 +272,59 @@ Upon running this command, you should see something like:
 ```
 
 This indicates that your API is live at port `5000`.
+
+## Deploying Kubernetes
+
+### Build/Load Images
+
+```
+docker build -t space_launches_api:1.0   -f Dockerfile .
+docker build -t space_launches_worker:1.0 -f Dockerfile .
+```
+
+### Deploy Manifests
+
+- Prod
+    ```kubectl apply -f kubernetes/prod/```
+- Test
+    ```
+    kubectl create namespace test
+    kubectl apply -n test -f kubernetes/test/
+    ```
+
+### Verify Resources
+
+- Prod
+    ```kubectl get pvc,pods,svc,ingress```
+- Test
+    ```kubectl get pvc,pods,svc,ingress -n test```
+
+### Smoke-test the API (Example Usage)
+    1. Port-forward Flask
+    ```kubectl port-forward svc/flask-service 5000:80```
+     
+    2. ```curl http://localhost:5000/help``` (in another shell)
+    
+    3. Seed a record 
+    ```curl -X POST http://localhost:5000/data \
+     -H "Content-Type: application/json" \
+     -d '[{"Company Name":"PodTest","Year":"2025","Private or State Run":"P"}]'```
+    
+    4. List it back
+    ```curl http://localhost:5000/data | jq .```
+    
+    5. Submit & fetch a plot 
+    ```JOB=$(curl -s -X POST http://localhost:5000/analyze/timeline | jq -r .job_id)
+    sleep 5
+    curl http://localhost:5000/results/$JOB --output timeline.png```
+
+### Persistence Check
+```kubectl delete pod -l app=flask-app
+sleep 5
+curl http://localhost:5000/data```
+
+*Kubernetes cluster did not work on our VM as we apparently do not have cluster-admin rights to create Deployments, Services, PVCs, or Ingresses, but if we did, we would go about using the steps outlined above*
+ 
 
 ## Example API Query Commands and Expected Outputs
 
