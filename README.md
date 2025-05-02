@@ -358,6 +358,44 @@ Expected Output:
 {"job_id":"<JOB_ID>"}
 ```
   
+###3. Job Status & Donwnloading Results
+
+- Check a job's status
+
+```bash
+curl -X GET http://localhost:5000/jobs/<JOB_ID>
+```
+
+Expected Output:
+
+```bash
+{
+  "id":"<JOB_ID>",
+  "type":"timeline",
+  "status":"complete",
+  "result_ready":true
+}
+```
+
+- Download the plot/image
+
+```bash
+curl -X GET http://localhost:5000/results/<JOB_ID> --output timeline.png
+```
+Expected Output:
+
+```bash
+Binary PNG data written to timeline.png
+```
+
+## Conclusion
+
+We’ve demonstrated a fully containerized pipeline for ingesting, storing, and analyzing space-launch data via simple HTTP calls. Future improvements could include an interactive web dashboard and GeoPandas-based choropleth maps for richer geospatial insight.
+
+## Note on Using AI 
+
+CHATGPT was used to write parts of this README.
+
 
 
 
