@@ -221,7 +221,7 @@ https://www.kaggle.com/datasets/davidroberts13/one-small-step-for-data
 2. **Build & Launch**  
    From the project root (where your `docker-compose.yml` lives), run:
    ```bash
-   docker compose up --build -d
+   docker compose up --build
 
 This command will:
 
