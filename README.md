@@ -253,3 +253,20 @@ You should see three containers:
 
 - `space_launches-redis-1` (Redis server)
 
+4. **Inspect Logs**
+
+To confirm the API started correctly, view its logs:
+
+```bash
+docker compose logs api
+```
+
+Upon running this command, you should see something like:
+
+```bash
+* Running on all addresses (0.0.0.0:5000)
+```
+
+This indicates that your API is live at port `5000`.
+
+
