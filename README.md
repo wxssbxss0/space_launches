@@ -316,12 +316,13 @@ docker build -t space_launches_worker:1.0 -f Dockerfile .
     5. Submit & fetch a plot 
     ```JOB=$(curl -s -X POST http://localhost:5000/analyze/timeline | jq -r .job_id)
     sleep 5
-    curl http://localhost:5000/results/$JOB --output timeline.png```
+    curl http://localhost:5000/results/$JOB --output timeline.png ```
 
 ### Persistence Check
 ```kubectl delete pod -l app=flask-app
    sleep 5
-   curl http://localhost:5000/data```
+   curl http://localhost:5000/data
+```
 
 **Kubernetes cluster did not work on our VM as we apparently do not have cluster-admin rights to create Deployments, Services, PVCs, or Ingresses, but if we did, we would go about using the steps outlined above**
 
