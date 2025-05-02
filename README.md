@@ -108,3 +108,57 @@ This project performs the following operations:
 | **`/jobs/<job_id>`**       |   GET  | Query job status & metadata (`queued`/`complete`, type, `result_ready` flag).            |
 | **`/results/<job_id>`**    |   GET  | Download the PNG bytes for a completed job.                                              |
 
+
+## Main Files
+
+- **api.py**  
+  The Flask application that defines all HTTP endpoints:  
+  - **`/help`** — Lists every route and usage.  
+  - **`/data`** — `POST` to seed or append launches, `GET` to list all records, `DELETE` to clear the dataset.  
+  - **`/analyze/timeline`**, **`/analyze/sector`**, **`/analyze/geography`**, **`/analyze/top-private`** — Enqueue background analysis jobs.  
+  - **`/jobs/<job_id>`** — Query job status and metadata.  
+  - **`/results/<job_id>`** — Download the PNG result for a completed job.
+
+- **jobs.py**  
+  Defines the job‐management functions used by both `api.py` and `worker.py`:  
+  1. `create_job(job_type)` – generates a UUID, stores metadata in Redis db 2, and pushes the job ID onto the queue (db 1).  
+  2. `get_job(job_id)` – retrieves status/type/parameters from Redis db 2.  
+  3. `job_result_ready(job_id)` – checks for a result entry in Redis db 3.  
+
+- **launches_reader.py**  
+  Handles CSV ingestion and Kaggle API fetch:  
+  1. Reads a local file‐like or downloads+unzips the Kaggle dataset.  
+  2. Strips whitespace from headers, converts “# Rocket” to numeric and imputes missing values.  
+  3. Returns a list of JSON‐serializable records for storage in Redis.
+
+- **worker.py**  
+  The background‐worker process that:  
+  1. Uses `BLPOP` on Redis db 1 to retrieve job IDs.  
+  2. Marks jobs “in progress” in Redis db 2.  
+  3. Loads cached launch records from Redis db 0.  
+  4. Dispatches to one of four plotting functions (`plot_private_crossover`, `plot_sector`, `plot_geography`, `plot_top_private`).  
+  5. Stores the PNG bytes under `results:<job_id>` in Redis db 3 and marks jobs “complete” in db 2.
+
+- **Dockerfile**  
+  Builds a single image for both the API and worker:  
+  - Base: `python:3.12-slim`.  
+  - Installs dependencies from `requirements.txt`.  
+  - Copies `src/` code in and sets `WORKDIR` to `/app/src`.  
+  - Exposes port 5000 and defaults to running `python api.py`.
+
+- **docker-compose.yml**  
+  Orchestrates three services:  
+  - **`api`** (builds the Dockerfile, runs `python api.py`, exposes port 5000)  
+  - **`worker`** (same image, runs `python worker.py`)  
+  - **`redis`** (official Redis 7 image, with persistent volume)
+
+- **pytest.ini**  
+  Configures pytest to discover tests in the `test/` directory and apply any custom markers.
+
+- **test/**  
+  Contains unit & integration tests:  
+  - `test_api.py` verifies all Flask endpoints (`/data`, `/analyze/*`, `/jobs/*`, `/results/*`).  
+  - `test_worker.py` verifies each plotting function returns valid PNG bytes.
+
+- **kubernetes/**  
+  *(Future work)* Helm charts and Kubernetes manifests for deploying API, worker, and Redis in a cluster.
