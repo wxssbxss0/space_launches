@@ -21,4 +21,13 @@ spec:
         env:
         - name: REDIS_HOST
           value: redis-test
-
+        - name: KAGGLE_CONFIG_DIR
+          value: /root/.kaggle
+        volumeMounts:
+        - name: kaggle-config
+          mountPath: /root/.kaggle
+          readOnly: true
+      volumes:
+      - name: kaggle-config
+        secret:
+          secretName: kaggle-secret
