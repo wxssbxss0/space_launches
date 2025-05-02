@@ -320,11 +320,11 @@ docker build -t space_launches_worker:1.0 -f Dockerfile .
 
 ### Persistence Check
 ```kubectl delete pod -l app=flask-app
-sleep 5
-curl http://localhost:5000/data```
+   sleep 5
+   curl http://localhost:5000/data```
 
 **Kubernetes cluster did not work on our VM as we apparently do not have cluster-admin rights to create Deployments, Services, PVCs, or Ingresses, but if we did, we would go about using the steps outlined above**
- 
+
 
 ## Example API Query Commands and Expected Outputs
 
@@ -415,7 +415,7 @@ Expected Output:
 {"job_id":"<JOB_ID>"}
 ```
   
-###3. Job Status & Donwnloading Results
+### 3. Job Status & Donwnloading Results
 
 - Check a job's status
 
