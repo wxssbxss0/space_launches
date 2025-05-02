@@ -176,7 +176,7 @@ We now maintain three test suites under `test/` that validate every layer of our
    ```bash
    python3 -m pytest
 
-You should see output like this: 
+```bash You should see output like this: 
 
 collected 12 items
 test_api.py ......               [ 50%]
