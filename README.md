@@ -269,4 +269,99 @@ Upon running this command, you should see something like:
 
 This indicates that your API is live at port `5000`.
 
+## Example API Query Commands and Expected Outputs
+
+Once your containers are running on port 5000, use the following `curl` commands to exercise each endpoint. Replace `<JOB_ID>` with the UUID returned by the POST requests.
+
+### 1. Data Operations
+
+- **Load the full dataset**  
+  ```bash
+  curl -X POST http://localhost:5000/data
+
+Expected Output:
+```bash
+{"status":"success","count":4278}
+```
+
+- List all Records:
+```bash
+curl -X GET http://localhost:5000/data
+```
+Expected Output: 
+```bash
+[
+  {
+    "id":"a1b2c3d4",
+    "Company Name":"SpaceX",
+    "Year":"2020",
+    "Rocket":50,
+    "Country of Launch":"USA",
+    …
+  },
+  …
+]
+```
+- Delete all records
+
+```bash
+curl -X DELETE http://localhost:5000/data
+```
+
+Expected Output: 
+```bash
+{"status":"all records deleted"}
+```
+### 2. Enqueue Analysis Jobs
+
+- Timeline (crossover) analysis
+```bash
+curl -X POST http://localhost:5000/analyze/timeline \
+     -H "Content-Type: application/json" -d '{}'
+```
+Expected Output:
+```bash
+{"job_id":"<JOB_ID>"}
+```
+
+- Sector comparison analysis
+  
+```bash
+curl -X POST http://localhost:5000/analyze/sector \
+     -H "Content-Type: application/json" -d '{}'
+```
+Expected Output: 
+```bash
+{"job_id":"<JOB_ID>"}
+```
+
+- Geographic analysis
+
+```bash
+curl -X POST http://localhost:5000/analyze/geography \
+     -H "Content-Type: application/json" -d '{}'
+```
+
+Expected Output: 
+```bash
+{"job_id":"<JOB_ID>"}
+```
+
+- Top-private providers (1995-2020)
+  ```bash
+  curl -X POST http://localhost:5000/analyze/top-private \
+     -H "Content-Type: application/json" -d '{}'
+  ```
+
+Expected Output: 
+```bash
+{"job_id":"<JOB_ID>"}
+```
+  
+
+
+
+  
+
+
 
