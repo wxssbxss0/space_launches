@@ -415,7 +415,7 @@ Expected Output:
 {"job_id":"<JOB_ID>"}
 ```
   
-###3. Job Status & Donwnloading Results
+### 3. Job Status & Donwnloading Results
 
 - Check a job's status
 
