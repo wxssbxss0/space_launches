@@ -324,7 +324,7 @@ sleep 5
 curl http://localhost:5000/data```
 
 *Kubernetes cluster did not work on our VM as we apparently do not have cluster-admin rights to create Deployments, Services, PVCs, or Ingresses, but if we did, we would go about using the steps outlined above*
- 
+ ```
 
 ## Example API Query Commands and Expected Outputs
 
