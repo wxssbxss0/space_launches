@@ -142,3 +142,39 @@ This project performs the following operations:
 
 - **kubernetes/**  
   *(Future work)* Helm charts and Kubernetes manifests for deploying API, worker, and Redis in a cluster.
+
+
+## Unit Tests
+
+We now maintain three test suites under `test/` that validate every layer of our application:
+
+- **`test_api.py`**  
+  - Verifies all Flask endpoints (`/help`, `/data`, `/analyze/timeline`, `/analyze/sector`, `/analyze/geography`, `/analyze/top-private`, `/jobs/<job_id>`, `/results/<job_id>`).  
+  - Spins up the app in `TESTING` mode and exercises CRUD and job‐enqueueing workflows against a real Redis instance.
+
+- **`test_jobs.py`**  
+  - Exercises the core job‐management functions in `jobs.py`:  
+    - `create_job()`, `get_job()`, status transitions, and `job_result_ready()`.  
+  - Uses a mocked or local Redis server to confirm metadata is stored and the queue is pushed correctly.
+
+- **`test_worker.py`**  
+  - Validates each plotting routine—`plot_private_crossover()`, `plot_sector()`, `plot_geography()`, and `plot_top_private()`—returns valid PNG bytes (checks the PNG magic header).  
+  - Runs against small in‐memory DataFrames and record lists.
+
+---
+
+### Running the tests
+
+1. **Start Redis** (in a separate terminal or background):
+   ```bash
+   cd test
+   redis-server --daemonize yes
+2. **Configure the Environment**
+   ```bash
+   export REDIS_HOST=127.0.0.1
+3. **Run Pytest**
+   ```bash
+   python3 -m pytest
+
+---
+
