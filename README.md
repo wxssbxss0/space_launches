@@ -186,5 +186,29 @@ test_jobs.py ...                 [ 75%]
 test_worker.py ...               [100%]
 
 12 passed in 1.23s
+```
 
+## Data Description
+
+The data powering this API comes from the Kaggle “One Small Step for Data” Global Space Launches dataset. Each record corresponds to a single launch event and includes fields such as:
+
+- **Company Name**: The launch provider (e.g. SpaceX, Arianespace, Sea Launch).  
+- **Location**: Text description of the launch site (e.g. “LC-39A, Kennedy Space Center, Florida, USA”).  
+- **Detail**: Mission or payload description (e.g. “Falcon 9 Block 5 | Starlink V1 L9 & BlackSky”).  
+- **Status Rocket**: Rocket status code (e.g. Active, Retired).   
+- **Status Mission**: Mission outcome (Success, Failure, Partial).  
+- **Country of Launch**: Nation or territory from which the launch occurred (e.g. USA, Russia, Kazakhstan).  
+- **Company’s Country of Origin**: Country where the launch provider is headquartered.  
+- **Private or State Run**: “P” for private companies, “S” for state/government operators.  
+- **DateTime**: ISO-style timestamp of the launch event.  
+- **Year**, **Month**, **Day**, **Date**, **Time**: Parsed date/time components for easy grouping and plotting.
+
+> **Normalization Notes**  
+> - We strip whitespace from all column names (the raw “\# Rocket” header included leading/trailing spaces).  
+> - We convert “\# Rocket” to numeric and fill missing entries with the median count.  
+> - We resolve ambiguous “Sea Launch” entries by treating “Sea Launch” only as a company and mapping any stray country entries to their correct geographic parent.
+
+**Data Source Citation:**  
+Kaggle dataset “One Small Step for Data: Global Space Launches” –  
+https://www.kaggle.com/datasets/davidroberts13/one-small-step-for-data  
 
