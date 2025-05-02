@@ -212,3 +212,44 @@ The data powering this API comes from the Kaggle “One Small Step for Data” G
 Kaggle dataset “One Small Step for Data: Global Space Launches” –  
 https://www.kaggle.com/datasets/davidroberts13/one-small-step-for-data  
 
+## Building and Launching All Containers
+
+1. **Prerequisites**  
+   - Docker ≥ 20.x  
+   - Docker Compose ≥ 1.29  
+
+2. **Build & Launch**  
+   From the project root (where your `docker-compose.yml` lives), run:
+   ```bash
+   docker compose up --build -d
+
+This command will:
+
+- Build a single Docker image (based on a Python 3.12-slim base) that installs all required Python dependencies (`Flask`, `requests`, `pandas`, etc.) from `requirements.txt`.
+
+- Copy your application code (`api.py`, `worker.py`, `launches_reader.py`, `jobs.py`) into the container.
+
+- Configure two services that use this image:
+
+   - api → runs `python api.py` and exposes port 5000
+
+   - worker → runs `python worker.py` in the background
+
+- Spin up a third service:
+
+   - redis → the official `Redis 7` image, used for data storage and job queueing
+
+3. **Verify**
+
+```bash
+docker ps
+```
+
+You should see three containers:
+
+- `space_launches-api-1` (Flask API on port 5000)
+
+- `space_launches-worker-1` (background job processor)
+
+- `space_launches-redis-1` (Redis server)
+
