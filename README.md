@@ -14,19 +14,6 @@ The **Space Launches Data API** is a containerized microservice suite that:
 5. Offers a **Jobs API** (/jobs/<job_id>) so clients can poll job status and a **Results API** (/results/<job_id>) to download the generated PNG plots.
 
 6. Runs a **Worker** service that pulls tasks off a Redis list (db 1), updates job metadata (db 2), runs the appropriate plotting routine (timeline crossover, sector bar, geographic heatmap, top-private bar), and stores the raw PNG bytes in Redis (db 3).
-
-## Project Files  
-*(The following files and folders comprise this repository.  The `data/` and `results/` directories are not checked in—you’ll create or populate them locally.)*
-- `Dockerfile`  
-- `docker-compose.yml`  
-- `diagram.png`  
-- `kubernetes/`  
-- `src/`  
-- `test/`   
-- `pytest.ini`  
-- `requirements.txt`  
-- `README.md`  
-
 ---
 
 ## Introduction  
@@ -60,13 +47,6 @@ We provide a containerized Flask+Redis API for ingesting, normalizing, and analy
 - **(Kubernetes)** manifests (in `kubernetes/`) for future production rollout  
 
 ---
-
-## Deployment (Local Hardware)  
-1. Install Docker & Docker Compose.  
-2. Ensure your Kaggle token is in `~/.kaggle/kaggle.json` with `chmod 600`.  
-3. From repo root:  
-   ```bash
-   docker compose up --build 
 
 ## Project Overview
 
