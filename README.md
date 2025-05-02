@@ -1,4 +1,4 @@
-# COE 332 Final Project: Space Launches API 🚀 & Kubernetes Pipeline
+# COE 332 Final Project: Space Launches API & Kubernetes Pipeline
 
 ## Overview
 The **Space Launches Data API** is a containerized microservice suite that:
